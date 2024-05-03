@@ -18,6 +18,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,7 +31,7 @@ public class PersonServiceImpl implements PersonService {
 	@Autowired
 	private LaptopClient laptopClient;
 
-	public CommonResponse addPerson(PersonRequest personRequest) throws InvalidParameterException{
+	public ResponseEntity<CommonResponse> addPerson(PersonRequest personRequest) throws InvalidParameterException{
 		if(personRequest.getAge()==null || personRequest.getName()==null) {
 			throw new InvalidParameterException();
 		}
@@ -41,10 +43,10 @@ public class PersonServiceImpl implements PersonService {
 		commonResponse.setStatus(ResponseStatus.CREATED);
 		commonResponse.setData(personRequest1);
 		commonResponse.setSuccessMessage("Person Created Successfully");
-		return commonResponse;
+		return new ResponseEntity<>(commonResponse, HttpStatus.CREATED);
 	}
 
-	public CommonResponse getAllPerson(Integer age) {
+	public ResponseEntity<CommonResponse> getAllPerson(Integer age) {
 		if (age != null) {
 			List<Person> li = personRepo.findByAge(age);
 			if (li.size() > 0) {
@@ -54,13 +56,13 @@ public class PersonServiceImpl implements PersonService {
 				commonResponse.setStatus(ResponseStatus.SUCCESS);
 				commonResponse.setData(pdList);
 				commonResponse.setSuccessMessage("Person has been fetched successfully");
-				return commonResponse;
+				return new ResponseEntity<>(commonResponse, HttpStatus.OK);
 			} else {
 				CommonResponse commonResponse = new CommonResponse();
 				commonResponse.setCode(204);
 				commonResponse.setStatus(ResponseStatus.FAILED);
 				commonResponse.setErrorMessage("No Person Exists!");
-				return commonResponse;
+				return new ResponseEntity<>(commonResponse, HttpStatus.NO_CONTENT);
 			}
 		} else {
 			List<PersonRequest> pdList = personRepo.findAll().stream().map(n -> dtoMapper.convertToDto(n)).collect(Collectors.toList());
@@ -69,18 +71,18 @@ public class PersonServiceImpl implements PersonService {
 			commonResponse.setStatus(ResponseStatus.SUCCESS);
 			commonResponse.setData(pdList);
 			commonResponse.setSuccessMessage("All Persons has been fetched successfully");
-			return commonResponse;
+			return new ResponseEntity<>(commonResponse, HttpStatus.OK);
 		}
 	}
-	public CommonResponse deleteAllPerson() {
+	public ResponseEntity<CommonResponse> deleteAllPerson() {
 		personRepo.deleteAll();
 		CommonResponse commonResponse = new CommonResponse();
 		commonResponse.setCode(200);
 		commonResponse.setStatus(ResponseStatus.SUCCESS);
 		commonResponse.setSuccessMessage("All Person has been Deleted Successfully");
-		return commonResponse;
+		return new ResponseEntity<>(commonResponse, HttpStatus.OK);
 	}
-	public CommonResponse getPerson(Long id) {
+	public ResponseEntity<CommonResponse> getPerson(Long id) {
 		Optional<Person> person = personRepo.findById(id);
 		if (person.isPresent()) {
 			PersonRequest personRequest = dtoMapper.convertToDto(person.get());
@@ -89,16 +91,16 @@ public class PersonServiceImpl implements PersonService {
 			commonResponse.setStatus(ResponseStatus.SUCCESS);
 			commonResponse.setData(personRequest);
 			commonResponse.setSuccessMessage("Person has been fetched Successfully");
-			return commonResponse;
+			return new ResponseEntity<>(commonResponse, HttpStatus.OK);
 		} else {
 			CommonResponse commonResponse = new CommonResponse();
 			commonResponse.setCode(204);
 			commonResponse.setStatus(ResponseStatus.FAILED);
 			commonResponse.setErrorMessage("Person doesn't Exists!");
-			return commonResponse;
+			return new ResponseEntity<>(commonResponse, HttpStatus.NO_CONTENT);
 		}
 	}
-	public CommonResponse updatePerson(Long id, PersonRequest personRequest) throws InvalidAttributesException {
+	public ResponseEntity<CommonResponse> updatePerson(Long id, PersonRequest personRequest) throws InvalidAttributesException {
 		if(personRequest.getAge()==null || personRequest.getName()==null) {
 			throw new InvalidAttributesException();
 		}
@@ -114,17 +116,17 @@ public class PersonServiceImpl implements PersonService {
 			commonResponse.setStatus(ResponseStatus.SUCCESS);
 			commonResponse.setData(personRequest2);
 			commonResponse.setSuccessMessage("Person has been Updated Successfully");
-			return commonResponse;
+			return new ResponseEntity<>(commonResponse, HttpStatus.OK);
 		} else {
 			CommonResponse commonResponse = new CommonResponse();
 			commonResponse.setCode(204);
 			commonResponse.setStatus(ResponseStatus.FAILED);
 			commonResponse.setErrorMessage("Person Update Failed!");
-			return commonResponse;
+			return new ResponseEntity<>(commonResponse, HttpStatus.NO_CONTENT);
 		}
 	}
 
-	public CommonResponse deletePerson(Long id) {
+	public ResponseEntity<CommonResponse> deletePerson(Long id) {
 		Optional<Person> person = personRepo.findById(id);
 		if (person.isPresent()) {
 			PersonRequest personRequest = dtoMapper.convertToDto(person.get());
@@ -134,26 +136,26 @@ public class PersonServiceImpl implements PersonService {
 			commonResponse.setStatus(ResponseStatus.SUCCESS);
 			commonResponse.setData(personRequest);
 			commonResponse.setSuccessMessage("Person has been Deleted Successfully!");
-			return commonResponse;
+			return new ResponseEntity<>(commonResponse, HttpStatus.OK);
 		} else {
 			CommonResponse commonResponse = new CommonResponse();
 			commonResponse.setCode(204);
 			commonResponse.setStatus(ResponseStatus.FAILED);
 			commonResponse.setErrorMessage("Failed to Delete Person!");
-			return commonResponse;
+			return new ResponseEntity<>(commonResponse, HttpStatus.NO_CONTENT);
 		}
 	}
 
-	public CommonResponse findAllLaptop(Long id) {
+	public ResponseEntity<CommonResponse> findAllLaptop(Long id) {
 		Optional<Person> person = personRepo.findById(id);
 		if (person.isPresent()) {
 			List<Long> laptops = person.get().getLaptops();
 			List<LaptopWrapper> laps = laptops.stream().map(n->{
-				CommonResponse response = laptopClient.getLaptop(n);
+				CommonResponse response = laptopClient.getLaptop(n).getBody();
 				TypeReference<LaptopWrapper> type = new TypeReference<>() {};
 				ObjectMapper mapper = new ObjectMapper();
 				try {
-					return mapper.readValue(mapper.writeValueAsString(response.getData()),type);
+					return mapper.readValue(mapper.writeValueAsString(response != null ? response.getData() : null),type);
 				} catch (JsonProcessingException e) {
 					return null;
 				}
@@ -163,13 +165,13 @@ public class PersonServiceImpl implements PersonService {
 			commonResponse.setStatus(ResponseStatus.SUCCESS);
 			commonResponse.setData(laps);
 			commonResponse.setSuccessMessage("Person's Laptop has been fetched Successfully");
-			return commonResponse;
+			return new ResponseEntity<>(commonResponse, HttpStatus.OK);
 		} else {
 			CommonResponse commonResponse = new CommonResponse();
 			commonResponse.setCode(204);
 			commonResponse.setStatus(ResponseStatus.SUCCESS);
 			commonResponse.setErrorMessage("Laptop doesn't Exists!");
-			return commonResponse;
+			return new ResponseEntity<>(commonResponse, HttpStatus.NO_CONTENT);
 		}
 	}
 }

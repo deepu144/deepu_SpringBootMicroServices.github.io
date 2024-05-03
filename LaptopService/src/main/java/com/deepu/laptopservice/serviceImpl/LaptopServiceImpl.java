@@ -14,6 +14,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import javax.naming.directory.InvalidAttributesException;
 import java.util.List;
@@ -27,7 +29,7 @@ public class LaptopServiceImpl implements LaptopService {
     private DtoMapper dtoMapper;
     @Autowired
     private PersonClient personClient;
-    public CommonResponse getAllLaptop(String processor) {
+    public ResponseEntity<CommonResponse> getAllLaptop(String processor) {
         if (processor == null) {
             List<LaptopRequest> li = laptopRepo.findAll().stream().map(n -> dtoMapper.convertToDto(n,getPersonName(n.getPersonId()))).collect(Collectors.toList());
             if(li.size()>0){
@@ -36,13 +38,13 @@ public class LaptopServiceImpl implements LaptopService {
                 commonResponse.setStatus(ResponseStatus.SUCCESS);
                 commonResponse.setData(li);
                 commonResponse.setSuccessMessage("Laptops has been Fetched Successfully");
-                return commonResponse;
+                return new ResponseEntity<>(commonResponse, HttpStatus.OK);
             }else{
                 CommonResponse commonResponse = new CommonResponse();
                 commonResponse.setCode(204);
                 commonResponse.setStatus(ResponseStatus.FAILED);
                 commonResponse.setErrorMessage("Laptop doesn't Exists!");
-                return commonResponse;
+                return new ResponseEntity<>(commonResponse, HttpStatus.NO_CONTENT);
             }
         } else {
             List<LaptopRequest> li = laptopRepo.findByProcessor(processor).stream().map(n -> dtoMapper.convertToDto(n,getPersonName(n.getPersonId())))
@@ -52,10 +54,10 @@ public class LaptopServiceImpl implements LaptopService {
             commonResponse.setStatus(ResponseStatus.SUCCESS);
             commonResponse.setData(li);
             commonResponse.setSuccessMessage("All Laptops has been Fetched Successfully");
-            return commonResponse;
+            return new ResponseEntity<>(commonResponse, HttpStatus.OK);
         }
     }
-    public CommonResponse addLaptop(LaptopWrapper laptopWrapper) throws InvalidAttributesException {
+    public ResponseEntity<CommonResponse> addLaptop(LaptopWrapper laptopWrapper) throws InvalidAttributesException {
         if (laptopWrapper.getName() == null || laptopWrapper.getProcessor() == null || laptopWrapper.getLaptopId()==null) {
             throw new InvalidAttributesException();
         }
@@ -67,17 +69,17 @@ public class LaptopServiceImpl implements LaptopService {
         commonResponse.setStatus(ResponseStatus.SUCCESS);
         commonResponse.setData(laptopRequest);
         commonResponse.setSuccessMessage("Laptops has been Added Successfully");
-        return commonResponse;
+        return new ResponseEntity<>(commonResponse, HttpStatus.OK);
     }
-    public CommonResponse deleteAll() {
+    public ResponseEntity<CommonResponse> deleteAll() {
         laptopRepo.deleteAll();
         CommonResponse commonResponse = new CommonResponse();
         commonResponse.setCode(204);
         commonResponse.setStatus(ResponseStatus.FAILED);
         commonResponse.setSuccessMessage("Laptops has been Deleted Successfully");
-        return commonResponse;
+        return new ResponseEntity<>(commonResponse, HttpStatus.NO_CONTENT);
     }
-    public CommonResponse getLaptop(Long id) {
+    public ResponseEntity<CommonResponse> getLaptop(Long id) {
         Laptop laptop = laptopRepo.findByLaptopId(id);
         if (laptop != null) {
             LaptopRequest laptopRequest = dtoMapper.convertToDto(laptop,getPersonName(laptop.getPersonId()));
@@ -86,16 +88,16 @@ public class LaptopServiceImpl implements LaptopService {
             commonResponse.setStatus(ResponseStatus.SUCCESS);
             commonResponse.setData(laptopRequest);
             commonResponse.setSuccessMessage("Laptop has been Fetched Successfully");
-            return commonResponse;
+            return new ResponseEntity<>(commonResponse, HttpStatus.OK);
         } else {
             CommonResponse commonResponse = new CommonResponse();
-            commonResponse.setCode(204);
+            commonResponse.setCode(404);
             commonResponse.setStatus(ResponseStatus.FAILED);
             commonResponse.setErrorMessage("Laptop doesn't Exists!");
-            return commonResponse;
+            return new ResponseEntity<>(commonResponse, HttpStatus.NOT_FOUND);
         }
     }
-    public CommonResponse updateLaptop(Long id, LaptopWrapper laptopWrapper) throws InvalidAttributesException {
+    public ResponseEntity<CommonResponse> updateLaptop(Long id, LaptopWrapper laptopWrapper) throws InvalidAttributesException {
         if (laptopWrapper.getName() == null || laptopWrapper.getProcessor() == null) {
             throw new InvalidAttributesException();
         }
@@ -110,16 +112,16 @@ public class LaptopServiceImpl implements LaptopService {
             commonResponse.setStatus(ResponseStatus.SUCCESS);
             commonResponse.setData(laptopRequest);
             commonResponse.setSuccessMessage("Laptop has been Updated Successfully!");
-            return commonResponse;
+            return new ResponseEntity<>(commonResponse, HttpStatus.OK);
         } else {
             CommonResponse commonResponse = new CommonResponse();
-            commonResponse.setCode(204);
+            commonResponse.setCode(404);
             commonResponse.setStatus(ResponseStatus.FAILED);
             commonResponse.setErrorMessage("Laptop doesn't Exists!");
-            return commonResponse;
+            return new ResponseEntity<>(commonResponse, HttpStatus.NOT_FOUND);
         }
     }
-    public CommonResponse deleteLaptop(Long id) {
+    public ResponseEntity<CommonResponse> deleteLaptop(Long id) {
         Laptop laptop = laptopRepo.findByLaptopId(id);
         if (laptop != null) {
             LaptopRequest laptopRequest = dtoMapper.convertToDto(laptop,getPersonName(laptop.getPersonId()));
@@ -129,26 +131,28 @@ public class LaptopServiceImpl implements LaptopService {
             commonResponse.setStatus(ResponseStatus.SUCCESS);
             commonResponse.setData(laptopRequest);
             commonResponse.setSuccessMessage("Laptops has been Deleted Successfully");
-            return commonResponse;
+            return new ResponseEntity<>(commonResponse, HttpStatus.OK);
         } else {
             CommonResponse commonResponse = new CommonResponse();
-            commonResponse.setCode(204);
+            commonResponse.setCode(404);
             commonResponse.setStatus(ResponseStatus.FAILED);
             commonResponse.setSuccessMessage("Laptop doesn't Exists!");
-            return commonResponse;
+            return new ResponseEntity<>(commonResponse, HttpStatus.NOT_FOUND);
         }
     }
     public String getPersonName(Long id) {
         if(id==null || id==0){
             return null;
         }
-        CommonResponse commonResponse =  personClient.getPerson(id);
+        CommonResponse commonResponse =  personClient.getPerson(id).getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         TypeReference<PersonWrapper> typeReference = new TypeReference<>() {};
         PersonWrapper personWrapper = null;
         try {
-            personWrapper = objectMapper.readValue(objectMapper.writeValueAsString(commonResponse.getData()),typeReference);
-        } catch (JsonProcessingException e) {}
+            personWrapper = objectMapper.readValue(objectMapper.writeValueAsString(commonResponse != null ? commonResponse.getData() : null),typeReference);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         return personWrapper != null ? personWrapper.getName() : "";
     }
 }
