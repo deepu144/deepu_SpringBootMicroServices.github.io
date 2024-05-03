@@ -11,5 +11,4 @@ import java.util.List;
 public interface LaptopRepo extends MongoRepository<Laptop, String> {
     List<Laptop> findByProcessor(String processor);
     Laptop findByLaptopId(Long id);
-
 }

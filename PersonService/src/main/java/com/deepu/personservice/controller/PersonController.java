@@ -1,14 +1,10 @@
 package com.deepu.personservice.controller;
 
-import java.util.List;
-
-import com.deepu.personservice.dto.LaptopDto;
-import com.deepu.personservice.dto.PersonDto;
-import com.deepu.personservice.model.Person;
+import com.deepu.personservice.request.PersonRequest;
+import com.deepu.personservice.enumeration.ResponseStatus;
+import com.deepu.personservice.response.CommonResponse;
 import com.deepu.personservice.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,67 +22,100 @@ public class PersonController {
 	private PersonService personService;
 	
 	@PostMapping("/person")
-	public ResponseEntity<PersonDto> addPerson(@RequestBody Person person){
+	public CommonResponse addPerson(@RequestBody PersonRequest personRequest){
+		CommonResponse commonResponse = new CommonResponse();
 		try {
-			return personService.addPerson(person);			
+			commonResponse = personService.addPerson(personRequest);
 		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			commonResponse.setCode(500);
+			commonResponse.setStatus(ResponseStatus.FAILED);
+			commonResponse.setData(e.getMessage());
+			commonResponse.setErrorMessage("Something went wrong. Please try again later");
 		}
+		return commonResponse;
 	}
 	
 	@GetMapping("/persons")
-	public ResponseEntity<List<PersonDto>> getAllPerson(@RequestParam(required = false) Integer age){
+	public CommonResponse getAllPerson(@RequestParam(required = false) Integer age){
 		try {
 			return personService.getAllPerson(age);			
 		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			CommonResponse commonResponse = new CommonResponse();
+			commonResponse.setCode(500);
+			commonResponse.setStatus(ResponseStatus.FAILED);
+			commonResponse.setData(e.getMessage());
+			commonResponse.setErrorMessage("Something went wrong. Please try again later");
+			return commonResponse;
 		}
 	}
 	
 	@DeleteMapping("/persons")
-	public ResponseEntity<PersonDto> deleteAllPerson(){
+	public CommonResponse deleteAllPerson(){
 		try {
 			return personService.deleteAllPerson();			
 		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			CommonResponse commonResponse = new CommonResponse();
+			commonResponse.setCode(500);
+			commonResponse.setStatus(ResponseStatus.FAILED);
+			commonResponse.setData(e.getMessage());
+			commonResponse.setErrorMessage("Something went wrong. Please try again later");
+			return commonResponse;
 		}
 	}
 	
 	@GetMapping("/persons/{id}")
-	public ResponseEntity<PersonDto> getPerson(@PathVariable Long id){
+	public CommonResponse getPerson(@PathVariable Long id){
 		try {
 			return personService.getPerson(id);			
 		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			CommonResponse commonResponse = new CommonResponse();
+			commonResponse.setCode(500);
+			commonResponse.setStatus(ResponseStatus.FAILED);
+			commonResponse.setData(e.getMessage());
+			commonResponse.setErrorMessage("Something went wrong. Please try again later");
+			return commonResponse;
 		}
 	}
 	
 	@PutMapping("/persons/{id}")
-	public ResponseEntity<PersonDto> updatePerson(@PathVariable Long id , @RequestBody Person person){
+	public CommonResponse updatePerson(@PathVariable Long id , @RequestBody PersonRequest personRequest){
 		try {
-			return personService.updatePerson(id, person);			
+			return personService.updatePerson(id, personRequest);
 		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			CommonResponse commonResponse = new CommonResponse();
+			commonResponse.setCode(500);
+			commonResponse.setStatus(ResponseStatus.FAILED);
+			commonResponse.setData(e.getMessage());
+			commonResponse.setErrorMessage("Something went wrong. Please try again later");
+			return commonResponse;
 		}
 	}
 	
 	@DeleteMapping("/persons/{id}")
-	public ResponseEntity<PersonDto> deletePerson(@PathVariable Long id){
+	public CommonResponse deletePerson(@PathVariable Long id){
 		try {
 			return personService.deletePerson(id);			
 		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			CommonResponse commonResponse = new CommonResponse();
+			commonResponse.setCode(500);
+			commonResponse.setStatus(ResponseStatus.FAILED);
+			commonResponse.setData(e.getMessage());
+			commonResponse.setErrorMessage("Something went wrong. Please try again later");
+			return commonResponse;
 		}
 	}
 	
 	@GetMapping("/persons/{id}/laptops")
-	public ResponseEntity<List<LaptopDto>> findAllLaptop(@PathVariable Long id){
+	public CommonResponse findAllLaptop(@PathVariable Long id){
 		try {
 			return personService.findAllLaptop(id);			
 		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			CommonResponse commonResponse = new CommonResponse();
+			commonResponse.setCode(500);
+			commonResponse.setStatus(ResponseStatus.FAILED);
+			commonResponse.setData(e.getMessage());
+			commonResponse.setErrorMessage("Something went wrong. Please try again later");
+			return commonResponse;
 		}
 	}
 }
