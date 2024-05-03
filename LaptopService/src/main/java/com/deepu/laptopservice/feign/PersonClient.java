@@ -1,15 +1,12 @@
 package com.deepu.laptopservice.feign;
 
-import com.deepu.laptopservice.dto.PersonDto;
+import com.deepu.laptopservice.response.CommonResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient("PERSONSERVICE")
+@FeignClient("PERSON-SERVICE")
 public interface PersonClient {
-
     @GetMapping("/api/persons/{id}")
-    ResponseEntity<PersonDto> getPerson(@PathVariable Long id);
-
+    CommonResponse getPerson(@PathVariable Long id);
 }

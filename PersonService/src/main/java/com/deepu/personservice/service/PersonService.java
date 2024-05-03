@@ -1,18 +1,16 @@
 package com.deepu.personservice.service;
 
-import com.deepu.personservice.dto.LaptopDto;
-import com.deepu.personservice.dto.PersonDto;
-import com.deepu.personservice.model.Person;
-import org.springframework.http.ResponseEntity;
+import com.deepu.personservice.request.PersonRequest;
+import com.deepu.personservice.response.CommonResponse;
+
 import javax.naming.directory.InvalidAttributesException;
-import java.util.List;
 
 public interface PersonService {
-	public ResponseEntity<PersonDto> addPerson(Person person);
-	public ResponseEntity<List<PersonDto>> getAllPerson(Integer age);
-	public ResponseEntity<PersonDto> deleteAllPerson();
-	public ResponseEntity<PersonDto> getPerson(Long id);
-	public ResponseEntity<PersonDto> updatePerson(Long id , Person person) throws InvalidAttributesException;
-	public ResponseEntity<PersonDto> deletePerson(Long id);
-	public ResponseEntity<List<LaptopDto>> findAllLaptop(Long id);
+	public CommonResponse addPerson(PersonRequest personRequest);
+	public CommonResponse getAllPerson(Integer age);
+	public CommonResponse deleteAllPerson();
+	public CommonResponse getPerson(Long id);
+	public CommonResponse updatePerson(Long id , PersonRequest personRequest) throws InvalidAttributesException;
+	public CommonResponse deletePerson(Long id);
+	public CommonResponse findAllLaptop(Long id);
 }

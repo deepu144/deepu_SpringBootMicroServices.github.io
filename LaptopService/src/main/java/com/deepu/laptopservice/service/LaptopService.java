@@ -1,16 +1,15 @@
 package com.deepu.laptopservice.service;
 
-import com.deepu.laptopservice.dto.LaptopDto;
-import com.deepu.laptopservice.model.Laptop;
-import org.springframework.http.ResponseEntity;
+import com.deepu.laptopservice.request.LaptopWrapper;
+import com.deepu.laptopservice.response.CommonResponse;
+
 import javax.naming.directory.InvalidAttributesException;
-import java.util.List;
 
 public interface LaptopService {
-    ResponseEntity<List<LaptopDto>> getAllLaptop(String processor);
-    ResponseEntity<LaptopDto> addLaptop(Laptop laptop) throws InvalidAttributesException;
-    ResponseEntity<LaptopDto> deleteAll();
-    ResponseEntity<LaptopDto> getLaptop(Long id);
-    ResponseEntity<LaptopDto> updateLaptop(Long id, Laptop laptop) throws InvalidAttributesException;
-    ResponseEntity<LaptopDto> deleteLaptop(Long id);
+    CommonResponse getAllLaptop(String processor);
+    CommonResponse addLaptop(LaptopWrapper laptopWrapper) throws InvalidAttributesException;
+    CommonResponse deleteAll();
+    CommonResponse getLaptop(Long id);
+    CommonResponse updateLaptop(Long id, LaptopWrapper laptopWrapper) throws InvalidAttributesException;
+    CommonResponse deleteLaptop(Long id);
 }

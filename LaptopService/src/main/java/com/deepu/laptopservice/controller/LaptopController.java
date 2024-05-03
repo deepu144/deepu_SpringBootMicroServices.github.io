@@ -1,81 +1,101 @@
 package com.deepu.laptopservice.controller;
 
-import com.deepu.laptopservice.dto.LaptopDto;
-import com.deepu.laptopservice.model.Laptop;
-import com.deepu.laptopservice.repository.LaptopRepo;
+import com.deepu.laptopservice.request.LaptopWrapper;
+import com.deepu.laptopservice.enumeration.ResponseStatus;
+import com.deepu.laptopservice.response.CommonResponse;
 import com.deepu.laptopservice.service.LaptopService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 public class LaptopController {
     @Autowired
     private LaptopService laptopService;
-    @Autowired
-    private LaptopRepo repo;
 
     @GetMapping("/laptops")
-    public ResponseEntity<List<LaptopDto>> getAllLaptop(@RequestParam(required = false) String processor) {
+    public CommonResponse getAllLaptop(@RequestParam(required = false) String processor) {
         try {
             return laptopService.getAllLaptop(processor);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            CommonResponse commonResponse = new CommonResponse();
+            commonResponse.setCode(500);
+            commonResponse.setStatus(ResponseStatus.FAILED);
+            commonResponse.setData(e.getMessage());
+            commonResponse.setErrorMessage("Something went wrong. Please try again later");
+            return commonResponse;
         }
     }
 
-    @PostMapping("/laptop")
-    public ResponseEntity<LaptopDto> addLaptop(@RequestBody Laptop laptop) {
+    @PostMapping
+            ("/laptop")
+    public CommonResponse addLaptop(@RequestBody LaptopWrapper laptopWrapper) {
         try {
-            return laptopService.addLaptop(laptop);
+            return laptopService.addLaptop(laptopWrapper);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            CommonResponse commonResponse = new CommonResponse();
+            commonResponse.setCode(500);
+            commonResponse.setStatus(ResponseStatus.FAILED);
+            commonResponse.setData(e.getMessage());
+            commonResponse.setErrorMessage("Something went wrong. Please try again later");
+            return commonResponse;
         }
     }
 
     @DeleteMapping("/laptops")
-    public ResponseEntity<LaptopDto> deleteAllLaptop() {
+    public CommonResponse deleteAllLaptop() {
         try {
             return laptopService.deleteAll();
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            CommonResponse commonResponse = new CommonResponse();
+            commonResponse.setCode(500);
+            commonResponse.setStatus(ResponseStatus.FAILED);
+            commonResponse.setData(e.getMessage());
+            commonResponse.setErrorMessage("Something went wrong. Please try again later");
+            return commonResponse;
         }
     }
 
     @GetMapping("/laptops/{id}")
-    public ResponseEntity<LaptopDto> getLaptop(@PathVariable Long id) {
+    public CommonResponse getLaptop(@PathVariable Long id) {
         try {
             return laptopService.getLaptop(id);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            CommonResponse commonResponse = new CommonResponse();
+            commonResponse.setCode(500);
+            commonResponse.setStatus(ResponseStatus.FAILED);
+            commonResponse.setData(e.getMessage());
+            commonResponse.setErrorMessage("Something went wrong. Please try again later");
+            return commonResponse;
         }
     }
 
     @PutMapping("/laptops/{id}")
-    public ResponseEntity<LaptopDto> updateLaptop(@PathVariable Long id, @RequestBody Laptop laptop) {
+    public CommonResponse updateLaptop(@PathVariable Long id, @RequestBody LaptopWrapper laptopWrapper) {
         try {
-            return laptopService.updateLaptop(id, laptop);
+            return laptopService.updateLaptop(id, laptopWrapper);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            CommonResponse commonResponse = new CommonResponse();
+            commonResponse.setCode(500);
+            commonResponse.setStatus(ResponseStatus.FAILED);
+            commonResponse.setData(e.getMessage());
+            commonResponse.setErrorMessage("Something went wrong. Please try again later");
+            return commonResponse;
         }
     }
 
     @DeleteMapping("/laptops/{id}")
-    public ResponseEntity<LaptopDto> deleteLaptop(@PathVariable Long id) {
+    public CommonResponse deleteLaptop(@PathVariable Long id) {
         try {
             return laptopService.deleteLaptop(id);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            CommonResponse commonResponse = new CommonResponse();
+            commonResponse.setCode(500);
+            commonResponse.setStatus(ResponseStatus.FAILED);
+            commonResponse.setData(e.getMessage());
+            commonResponse.setErrorMessage("Something went wrong. Please try again later");
+            return commonResponse;
         }
     }
-
-    @PostMapping("/addAll")
-    public void addAll(@RequestBody List<Laptop> lap){
-        repo.saveAll(lap);
-    }
-
-
 }
