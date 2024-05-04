@@ -26,7 +26,7 @@ public class PersonController {
 	@PostMapping("/person")
 	public ResponseEntity<CommonResponse> addPerson(@RequestBody PersonRequest personRequest){
 		try {
-			return personService.addPerson(personRequest);
+			return new ResponseEntity<>(personService.addPerson(personRequest),HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(setServerError(e),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -35,7 +35,7 @@ public class PersonController {
 	@GetMapping("/persons")
 	public ResponseEntity<CommonResponse> getAllPerson(@RequestParam(required = false) Integer age){
 		try {
-			return personService.getAllPerson(age);			
+			return new ResponseEntity<>(personService.getAllPerson(age),HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(setServerError(e),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -44,7 +44,7 @@ public class PersonController {
 	@DeleteMapping("/persons")
 	public ResponseEntity<CommonResponse> deleteAllPerson(){
 		try {
-			return personService.deleteAllPerson();			
+			return new ResponseEntity<>(personService.deleteAllPerson(),HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(setServerError(e),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -53,7 +53,7 @@ public class PersonController {
 	@GetMapping("/persons/{id}")
 	public ResponseEntity<CommonResponse> getPerson(@PathVariable Long id){
 		try {
-			return personService.getPerson(id);			
+			return new ResponseEntity<>(personService.getPerson(id),HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(setServerError(e),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -62,7 +62,7 @@ public class PersonController {
 	@PutMapping("/persons/{id}")
 	public ResponseEntity<CommonResponse> updatePerson(@PathVariable Long id , @RequestBody PersonRequest personRequest){
 		try {
-			return personService.updatePerson(id, personRequest);
+			return new ResponseEntity<>(personService.updatePerson(id, personRequest),HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(setServerError(e),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -71,7 +71,7 @@ public class PersonController {
 	@DeleteMapping("/persons/{id}")
 	public ResponseEntity<CommonResponse> deletePerson(@PathVariable Long id){
 		try {
-			return personService.deletePerson(id);			
+			return new ResponseEntity<>(personService.deletePerson(id),HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(setServerError(e),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -80,7 +80,7 @@ public class PersonController {
 	@GetMapping("/persons/{id}/laptops")
 	public ResponseEntity<CommonResponse> findAllLaptop(@PathVariable Long id){
 		try {
-			return personService.findAllLaptop(id);			
+			return new ResponseEntity<>(personService.findAllLaptop(id),HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(setServerError(e),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
