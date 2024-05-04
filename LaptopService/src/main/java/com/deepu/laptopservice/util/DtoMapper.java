@@ -1,19 +1,19 @@
 package com.deepu.laptopservice.util;
 
-import com.deepu.laptopservice.request.LaptopRequest;
+import com.deepu.laptopservice.request.LaptopObject;
 import com.deepu.laptopservice.request.LaptopWrapper;
 import com.deepu.laptopservice.model.Laptop;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DtoMapper {
-    public LaptopRequest convertToDto(Laptop laptop, String personName) {
-        LaptopRequest laptopRequest = new LaptopRequest();
-        laptopRequest.setName(laptop.getName());
-        laptopRequest.setProcessor(laptop.getProcessor());
-        laptopRequest.setPerson(personName);
-        laptopRequest.setLaptopId(laptop.getLaptopId());
-        return laptopRequest;
+    public LaptopObject convertToDto(Laptop laptop, String personName) {
+        LaptopObject laptopObject = new LaptopObject();
+        laptopObject.setName(laptop.getName());
+        laptopObject.setProcessor(laptop.getProcessor());
+        laptopObject.setPerson(personName);
+        laptopObject.setLaptopId(laptop.getLaptopId());
+        return laptopObject;
     }
     public Laptop convertToModel(LaptopWrapper laptopWrapper){
         Laptop laptop = new Laptop();

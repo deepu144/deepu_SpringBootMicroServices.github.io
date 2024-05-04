@@ -18,7 +18,7 @@ public class LaptopController {
     @GetMapping("/laptops")
     public ResponseEntity<CommonResponse> getAllLaptop(@RequestParam(required = false) String processor) {
         try {
-            return laptopService.getAllLaptop(processor);
+            return new ResponseEntity<>(laptopService.getAllLaptop(processor),HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(setServerError(e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -27,7 +27,7 @@ public class LaptopController {
     @PostMapping("/laptop")
     public ResponseEntity<CommonResponse> addLaptop(@RequestBody LaptopWrapper laptopWrapper) {
         try {
-            return laptopService.addLaptop(laptopWrapper);
+            return new ResponseEntity<>(laptopService.addLaptop(laptopWrapper),HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(setServerError(e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -36,7 +36,7 @@ public class LaptopController {
     @DeleteMapping("/laptops")
     public ResponseEntity<CommonResponse> deleteAllLaptop() {
         try {
-            return laptopService.deleteAll();
+            return new ResponseEntity<>(laptopService.deleteAll(),HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(setServerError(e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -45,7 +45,7 @@ public class LaptopController {
     @GetMapping("/laptops/{id}")
     public ResponseEntity<CommonResponse> getLaptop(@PathVariable Long id) {
         try {
-            return laptopService.getLaptop(id);
+            return new ResponseEntity<>(laptopService.getLaptop(id),HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(setServerError(e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -54,7 +54,7 @@ public class LaptopController {
     @PutMapping("/laptops/{id}")
     public ResponseEntity<CommonResponse> updateLaptop(@PathVariable Long id, @RequestBody LaptopWrapper laptopWrapper) {
         try {
-            return laptopService.updateLaptop(id, laptopWrapper);
+            return new ResponseEntity<>(laptopService.updateLaptop(id, laptopWrapper),HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(setServerError(e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -63,7 +63,7 @@ public class LaptopController {
     @DeleteMapping("/laptops/{id}")
     public ResponseEntity<CommonResponse> deleteLaptop(@PathVariable Long id) {
         try {
-            return laptopService.deleteLaptop(id);
+            return new ResponseEntity<>(laptopService.deleteLaptop(id),HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(setServerError(e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
