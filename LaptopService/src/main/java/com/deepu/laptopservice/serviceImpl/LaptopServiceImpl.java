@@ -56,18 +56,19 @@ public class LaptopServiceImpl implements LaptopService {
         }
     }
     public CommonResponse addLaptop(LaptopWrapper laptopWrapper) throws InvalidAttributesException {
-        if (laptopWrapper.getName() == null || laptopWrapper.getProcessor() == null || laptopWrapper.getLaptopId()==null) {
+        if (laptopWrapper.getName() != null && laptopWrapper.getProcessor() != null && laptopWrapper.getLaptopId() != null) {
+            Laptop laptop = dtoMapper.convertToModel(laptopWrapper);
+            laptopRepo.save(laptop);
+            LaptopObject laptopObject = dtoMapper.convertToDto(laptop,getPersonName(laptop.getPersonId()));
+            CommonResponse commonResponse = new CommonResponse();
+            commonResponse.setCode(200);
+            commonResponse.setStatus(ResponseStatus.SUCCESS);
+            commonResponse.setData(laptopObject);
+            commonResponse.setSuccessMessage("Laptops has been Added Successfully");
+            return commonResponse;
+        }else{
             throw new InvalidAttributesException();
         }
-        Laptop laptop = dtoMapper.convertToModel(laptopWrapper);
-        laptopRepo.save(laptop);
-        LaptopObject laptopObject = dtoMapper.convertToDto(laptop,getPersonName(laptop.getPersonId()));
-        CommonResponse commonResponse = new CommonResponse();
-        commonResponse.setCode(200);
-        commonResponse.setStatus(ResponseStatus.SUCCESS);
-        commonResponse.setData(laptopObject);
-        commonResponse.setSuccessMessage("Laptops has been Added Successfully");
-        return commonResponse;
     }
     public CommonResponse deleteAll() {
         laptopRepo.deleteAll();
@@ -96,27 +97,28 @@ public class LaptopServiceImpl implements LaptopService {
         }
     }
     public CommonResponse updateLaptop(Long id, LaptopWrapper laptopWrapper) throws InvalidAttributesException {
-        if (laptopWrapper.getName() == null || laptopWrapper.getProcessor() == null) {
+        if (laptopWrapper.getName() != null && laptopWrapper.getProcessor() != null) {
+            Laptop laptop1 = laptopRepo.findByLaptopId(id);
+            if (laptop1 != null) {
+                laptop1.setName(laptopWrapper.getName());
+                laptop1.setProcessor(laptopWrapper.getProcessor());
+                laptopRepo.save(laptop1);
+                LaptopObject laptopObject = dtoMapper.convertToDto(laptop1,getPersonName(laptop1.getPersonId()));
+                CommonResponse commonResponse = new CommonResponse();
+                commonResponse.setCode(200);
+                commonResponse.setStatus(ResponseStatus.SUCCESS);
+                commonResponse.setData(laptopObject);
+                commonResponse.setSuccessMessage("Laptop has been Updated Successfully!");
+                return commonResponse;
+            } else {
+                CommonResponse commonResponse = new CommonResponse();
+                commonResponse.setCode(404);
+                commonResponse.setStatus(ResponseStatus.FAILED);
+                commonResponse.setErrorMessage("Laptop doesn't Exists!");
+                return commonResponse;
+            }
+        }else{
             throw new InvalidAttributesException();
-        }
-        Laptop laptop1 = laptopRepo.findByLaptopId(id);
-        if (laptop1 != null) {
-            laptop1.setName(laptopWrapper.getName());
-            laptop1.setProcessor(laptopWrapper.getProcessor());
-            laptopRepo.save(laptop1);
-            LaptopObject laptopObject = dtoMapper.convertToDto(laptop1,getPersonName(laptop1.getPersonId()));
-            CommonResponse commonResponse = new CommonResponse();
-            commonResponse.setCode(200);
-            commonResponse.setStatus(ResponseStatus.SUCCESS);
-            commonResponse.setData(laptopObject);
-            commonResponse.setSuccessMessage("Laptop has been Updated Successfully!");
-            return commonResponse;
-        } else {
-            CommonResponse commonResponse = new CommonResponse();
-            commonResponse.setCode(404);
-            commonResponse.setStatus(ResponseStatus.FAILED);
-            commonResponse.setErrorMessage("Laptop doesn't Exists!");
-            return commonResponse;
         }
     }
     public CommonResponse deleteLaptop(Long id) {
