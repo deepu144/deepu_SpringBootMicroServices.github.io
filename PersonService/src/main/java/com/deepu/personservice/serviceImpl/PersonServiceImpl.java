@@ -31,18 +31,19 @@ public class PersonServiceImpl implements PersonService {
 	private LaptopClient laptopClient;
 
 	public CommonResponse addPerson(PersonRequest personRequest) throws InvalidParameterException{
-		if(personRequest.getAge()==null || personRequest.getName()==null) {
+		if(personRequest.getAge()!=null && personRequest.getName()!=null) {
+			Person person = dtoMapper.convertToModel(personRequest);
+			personRepo.save(person);
+			PersonRequest personRequest1 = dtoMapper.convertToDto(person);
+			CommonResponse commonResponse = new CommonResponse();
+			commonResponse.setCode(201);
+			commonResponse.setStatus(ResponseStatus.CREATED);
+			commonResponse.setData(personRequest1);
+			commonResponse.setSuccessMessage("Person Created Successfully");
+			return commonResponse;
+		}else{
 			throw new InvalidParameterException();
 		}
-		Person person = dtoMapper.convertToModel(personRequest);
-		personRepo.save(person);
-		PersonRequest personRequest1 = dtoMapper.convertToDto(person);
-		CommonResponse commonResponse = new CommonResponse();
-		commonResponse.setCode(201);
-		commonResponse.setStatus(ResponseStatus.CREATED);
-		commonResponse.setData(personRequest1);
-		commonResponse.setSuccessMessage("Person Created Successfully");
-		return commonResponse;
 	}
 
 	public CommonResponse getAllPerson(Integer age) {
@@ -100,28 +101,29 @@ public class PersonServiceImpl implements PersonService {
 		}
 	}
 	public CommonResponse updatePerson(Long id, PersonRequest personRequest) throws InvalidAttributesException {
-		if(personRequest.getAge()==null || personRequest.getName()==null) {
+		if(personRequest.getAge()!=null && personRequest.getName()!=null) {
+			Optional<Person> personTest = personRepo.findById(id);
+			if (personTest.isPresent()) {
+				Person person = personTest.get();
+				person.setAge(personRequest.getAge());
+				person.setName(personRequest.getName());
+				personRepo.save(person);
+				PersonRequest personRequest2 = dtoMapper.convertToDto(person);
+				CommonResponse commonResponse = new CommonResponse();
+				commonResponse.setCode(200);
+				commonResponse.setStatus(ResponseStatus.SUCCESS);
+				commonResponse.setData(personRequest2);
+				commonResponse.setSuccessMessage("Person has been Updated Successfully");
+				return commonResponse;
+			} else {
+				CommonResponse commonResponse = new CommonResponse();
+				commonResponse.setCode(204);
+				commonResponse.setStatus(ResponseStatus.FAILED);
+				commonResponse.setErrorMessage("Person Update Failed!");
+				return commonResponse;
+			}
+		}else{
 			throw new InvalidAttributesException();
-		}
-		Optional<Person> personTest = personRepo.findById(id);
-		if (personTest.isPresent()) {
-			Person person = personTest.get();
-			person.setAge(personRequest.getAge());
-			person.setName(personRequest.getName());
-			personRepo.save(person);
-			PersonRequest personRequest2 = dtoMapper.convertToDto(person);
-			CommonResponse commonResponse = new CommonResponse();
-			commonResponse.setCode(200);
-			commonResponse.setStatus(ResponseStatus.SUCCESS);
-			commonResponse.setData(personRequest2);
-			commonResponse.setSuccessMessage("Person has been Updated Successfully");
-			return commonResponse;
-		} else {
-			CommonResponse commonResponse = new CommonResponse();
-			commonResponse.setCode(204);
-			commonResponse.setStatus(ResponseStatus.FAILED);
-			commonResponse.setErrorMessage("Person Update Failed!");
-			return commonResponse;
 		}
 	}
 
