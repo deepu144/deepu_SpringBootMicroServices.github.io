@@ -143,7 +143,7 @@ public class PersonServiceImpl implements PersonService {
 			return commonResponse;
 		} else {
 			CommonResponse commonResponse = new CommonResponse();
-			commonResponse.setCode(204);
+			commonResponse.setCode(404);
 			commonResponse.setStatus(ResponseStatus.FAILED);
 			commonResponse.setErrorMessage("Failed to Delete Person!");
 			return commonResponse;
