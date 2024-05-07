@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PersonWrapper {
+public class PersonObject {
     private Long id;
     private String name;
     private Integer age;
