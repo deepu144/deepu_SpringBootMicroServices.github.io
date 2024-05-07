@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.naming.directory.InvalidAttributesException;
-
-import com.deepu.personservice.exception.CustomException;
-import com.deepu.personservice.request.LaptopWrapper;
+import com.deepu.personservice.request.LaptopObject;
 import com.deepu.personservice.request.PersonRequest;
 import com.deepu.personservice.enumeration.ResponseStatus;
 import com.deepu.personservice.feign.LaptopClient;
@@ -20,6 +18,7 @@ import com.deepu.personservice.util.DtoMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +47,7 @@ public class PersonServiceImpl implements PersonService {
 		}
 	}
 
-	public CommonResponse getAllPerson(Integer age) {
+	public CommonResponse getAllPerson(Integer age) throws NotFoundException{
 		if (age != null) {
 			List<Person> li = personRepo.findByAge(age);
 			if (li.size() > 0) {
@@ -60,11 +59,7 @@ public class PersonServiceImpl implements PersonService {
 				commonResponse.setSuccessMessage("Person has been fetched successfully");
 				return commonResponse;
 			} else {
-				CommonResponse commonResponse = new CommonResponse();
-				commonResponse.setCode(204);
-				commonResponse.setStatus(ResponseStatus.FAILED);
-				commonResponse.setErrorMessage("No Person Exists!");
-				return commonResponse;
+				throw new NotFoundException("No Person Exists!");
 			}
 		} else {
 			List<PersonRequest> pdList = personRepo.findAll().stream().map(n -> dtoMapper.convertToDto(n)).collect(Collectors.toList());
@@ -84,7 +79,7 @@ public class PersonServiceImpl implements PersonService {
 		commonResponse.setSuccessMessage("All Person has been Deleted Successfully");
 		return commonResponse;
 	}
-	public CommonResponse getPerson(Long id) {
+	public CommonResponse getPerson(Long id) throws NotFoundException{
 		Optional<Person> person = personRepo.findById(id);
 		if (person.isPresent()) {
 			PersonRequest personRequest = dtoMapper.convertToDto(person.get());
@@ -95,14 +90,10 @@ public class PersonServiceImpl implements PersonService {
 			commonResponse.setSuccessMessage("Person has been fetched Successfully");
 			return commonResponse;
 		} else {
-			CommonResponse commonResponse = new CommonResponse();
-			commonResponse.setCode(204);
-			commonResponse.setStatus(ResponseStatus.FAILED);
-			commonResponse.setErrorMessage("Person doesn't Exists!");
-			return commonResponse;
+			throw new NotFoundException("No Person Exists!");
 		}
 	}
-	public CommonResponse updatePerson(Long id, PersonRequest personRequest) throws InvalidAttributesException, CustomException {
+	public CommonResponse updatePerson(Long id, PersonRequest personRequest) throws InvalidAttributesException,NotFoundException{
 		if(personRequest.getAge()!=null && personRequest.getName()!=null) {
 			Optional<Person> personTest = personRepo.findById(id);
 			if (personTest.isPresent()) {
@@ -118,19 +109,14 @@ public class PersonServiceImpl implements PersonService {
 				commonResponse.setSuccessMessage("Person has been Updated Successfully");
 				return commonResponse;
 			} else {
-//				CommonResponse commonResponse = new CommonResponse();
-//				commonResponse.setCode(204);
-//				commonResponse.setStatus(ResponseStatus.FAILED);
-//				commonResponse.setErrorMessage("Person Update Failed!");
-//				return commonResponse;
-				throw new CustomException("Person Not Found!!");
+				throw new NotFoundException("No Person Exists!");
 			}
 		}else{
 			throw new InvalidAttributesException();
 		}
 	}
 
-	public CommonResponse deletePerson(Long id) {
+	public CommonResponse deletePerson(Long id) throws NotFoundException{
 		Optional<Person> person = personRepo.findById(id);
 		if (person.isPresent()) {
 			PersonRequest personRequest = dtoMapper.convertToDto(person.get());
@@ -142,22 +128,18 @@ public class PersonServiceImpl implements PersonService {
 			commonResponse.setSuccessMessage("Person has been Deleted Successfully!");
 			return commonResponse;
 		} else {
-			CommonResponse commonResponse = new CommonResponse();
-			commonResponse.setCode(404);
-			commonResponse.setStatus(ResponseStatus.FAILED);
-			commonResponse.setErrorMessage("Failed to Delete Person!");
-			return commonResponse;
+			throw new NotFoundException("No Person Exists!");
 		}
 	}
 
-	public CommonResponse findAllLaptop(Long id) throws JsonProcessingException {
+	public CommonResponse findAllLaptop(Long id) throws JsonProcessingException,NotFoundException{
 		Optional<Person> person = personRepo.findById(id);
 		if (person.isPresent()) {
 			List<Long> laptops = person.get().getLaptops();
-			List<LaptopWrapper> laps = new ArrayList<>();
+			List<LaptopObject> laps = new ArrayList<>();
 			for(Long value : laptops){
-				LaptopWrapper laptopWrapper = mapper(value);
-				laps.add(laptopWrapper);
+				LaptopObject laptopObject = mapper(value);
+				laps.add(laptopObject);
 			}
 			CommonResponse commonResponse = new CommonResponse();
 			commonResponse.setCode(200);
@@ -166,17 +148,13 @@ public class PersonServiceImpl implements PersonService {
 			commonResponse.setSuccessMessage("Person's Laptop has been fetched Successfully");
 			return commonResponse;
 		} else {
-			CommonResponse commonResponse = new CommonResponse();
-			commonResponse.setCode(204);
-			commonResponse.setStatus(ResponseStatus.SUCCESS);
-			commonResponse.setErrorMessage("Laptop doesn't Exists!");
-			return commonResponse;
+			throw new NotFoundException("No Laptop Found!");
 		}
 	}
 
-	private LaptopWrapper mapper(Long n) throws JsonProcessingException {
+	private LaptopObject mapper(Long n) throws JsonProcessingException {
 		CommonResponse response = laptopClient.getLaptop(n).getBody();
-		TypeReference<LaptopWrapper> type = new TypeReference<>() {
+		TypeReference<LaptopObject> type = new TypeReference<>() {
 		};
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.readValue(mapper.writeValueAsString(response != null ? response.getData() : null), type);
