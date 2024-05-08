@@ -69,13 +69,6 @@ public class PersonController {
 	public ResponseEntity<CommonResponse> updatePerson(@PathVariable Long id , @RequestBody PersonRequest personRequest){
 		try {
 			return new ResponseEntity<>(personService.updatePerson(id, personRequest),HttpStatus.OK);
-		} catch (CustomException e){
-			CommonResponse commonResponse = new CommonResponse();
-			commonResponse.setCode(400);
-			commonResponse.setStatus(ResponseStatus.FAILED);
-			commonResponse.setErrorMessage(e.getMessage());
-			commonResponse.setData(id);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(commonResponse);
 		} catch (Exception e) {
 			return new ResponseEntity<>(setServerError(e),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
